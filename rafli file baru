@@ -1,0 +1,123 @@
+import tkinter as tk
+import tkinter.messagebox
+from tkinter.constants import SUNKEN
+from PIL import Image, ImageTk
+import math
+
+# Create the main window
+window = tk.Tk()
+window.title('Muhammad Rafliansyah')
+
+# Load and resize the background image
+background_image = Image.open("C:\\Users\\ACER\\Downloads\\626e236fbfeb9.png")
+background_image = background_image.resize((window.winfo_screenwidth(), window.winfo_screenheight()), Image.Resampling.LANCZOS)
+bg_image = ImageTk.PhotoImage(background_image)
+
+# Create a canvas to hold the background image
+canvas = tk.Canvas(window, width=window.winfo_screenwidth(), height=window.winfo_screenheight())
+canvas.pack(fill="both", expand=True)
+canvas.create_image(0, 0, image=bg_image, anchor="nw")
+
+# Set a light blue background
+window.configure(bg="#add8e6")
+
+# Make the window fullscreen
+window.attributes('-fullscreen', True)
+
+# Create a frame for the calculator
+frame = tk.Frame(master=window, bg="#e0f7fa", padx=10)
+frame.place(relx=0.5, rely=0.5, anchor='center')
+
+# Entry widget for calculations
+entry = tk.Entry(master=frame, relief=SUNKEN, borderwidth=20, width=30, font=("Arial", 18), fg="#333333")
+entry.grid(row=0, column=0, columnspan=5, ipady=2, pady=2, sticky="nsew")
+
+def myclick(number):
+    entry.insert(tk.END, number)
+
+def equal():
+    try:
+        expression = entry.get().replace('^', '**')
+        y = str(eval(expression))
+        entry.delete(0, tk.END)
+        entry.insert(0, y)
+    except Exception:
+        tkinter.messagebox.showinfo("Error", "Syntax Error")
+
+def clear():
+    entry.delete(0, tk.END)
+
+def percent():
+    try:
+        current_value = float(entry.get())
+        entry.delete(0, tk.END)
+        entry.insert(0, str(current_value / 100))
+    except:
+        tkinter.messagebox.showinfo("Error", "Syntax Error")
+
+def delete():
+    current_text = entry.get()
+    entry.delete(0, tk.END)
+    entry.insert(0, current_text[:-1])  # Remove last character
+
+def add_decimal():
+    if '.' not in entry.get():
+        entry.insert(tk.END, '.')
+
+def toggle_sign():
+    current_text = entry.get()
+    if current_text:
+        if current_text[0] == '-':
+            entry.delete(0)
+            entry.insert(0, current_text[1:])  # Remove the minus sign
+        else:
+            entry.delete(0)
+            entry.insert(0, '-' + current_text)  # Add the minus sign
+
+def square_root():
+    try:
+        current_value = float(entry.get())
+        entry.delete(0, tk.END)
+        entry.insert(0, str(math.sqrt(current_value)))
+    except ValueError:
+        tkinter.messagebox.showinfo("Error", "Invalid Input")
+
+# Create buttons with aesthetic colors
+button_color = "#ffcc80"  # Light orange
+button_active_color = "#ffab40"  # Darker orange
+button_font_color = "#212121"  # Dark gray
+
+buttons = [
+    ('1', 4, 0), ('2', 4, 1), ('3', 4, 2),
+    ('4', 2, 0), ('5', 2, 1), ('6', 2, 2),
+    ('7', 3, 0), ('8', 3, 1), ('9', 3, 2),
+    ('0', 6, 0, 3), ('+', 2, 3), ('-', 3, 3),
+    ('*', 4, 3), ('/', 1, 2), ('C', 1, 0),
+    ('⌫', 1, 3), (',', 5, 3), ('±', 5, 0),
+    ('^', 1, 1), ('√', 5, 2),('=', 6, 3,1), 
+    ('%', 5, 1) # Square root button
+]
+
+for (text, row, column, *colspan) in buttons:
+    btn = tk.Button(master=frame, text=text, padx=15, pady=5, bg=button_color, activebackground=button_active_color, borderwidth=5, fg=button_font_color,
+                    command=lambda t=text: myclick(t) if t.isdigit() or t in '+-*/^%' else (clear() if t == 'C' else equal() if t == '=' else percent() if t == '%' else delete() if t == '⌫' else add_decimal() if t == ',' else toggle_sign() if t == '±' else square_root() if t == '√' else None))
+    btn.grid(row=row, column=column, columnspan=colspan[0] if colspan else 1, pady=5, sticky="nsew")
+
+# Configure grid weights
+for i in range(8):
+    frame.grid_rowconfigure(i, weight=1)
+for j in range(4):
+    frame.grid_columnconfigure(j, weight=1)
+
+# Fullscreen toggle functions
+def toggle_fullscreen(event=None):
+    is_fullscreen = window.attributes('-fullscreen')
+    window.attributes('-fullscreen', not is_fullscreen)
+
+def end_fullscreen(event=None):
+    window.attributes('-fullscreen', False)
+
+window.bind('<F11>', toggle_fullscreen)
+window.bind('<Escape>', end_fullscreen)
+
+window.mainloop()
