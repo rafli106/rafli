@@ -1,0 +1,5 @@
+def myclick(number):
+    # Clear the entry if it's showing a previous result or after hitting equal
+    if entry.get() == str(eval(entry.get())):
+        entry.delete(0, tk.END)
+    entry.insert(tk.END, number)
